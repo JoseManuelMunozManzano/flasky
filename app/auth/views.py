@@ -91,12 +91,13 @@ def resend_confirmation():
 @login_required
 def change_password():
     form = ChangePasswordForm()
-    if form.validate_on_submit() and current_user.confirmed:
-        user = User.query.filter_by(email=current_user.email).first()
-        if user is not None:
-            user.password = form.password_new.data
-            db.session.add(user)
+    if form.validate_on_submit():
+        if current_user.verify_password(form.password_old.data):
+            current_user.password = form.password_new.data
+            db.session.add(current_user)
             db.session.commit()
-        flash('You have changed your password. Thanks! ')
-        return redirect(url_for('auth.login'))
-    return render_template('auth/changePassword.html', form=form)
+            flash('Your password has been updated.')
+            return redirect(url_for('main.index'))
+        else:
+            flash('Invalid password.')
+    return render_template("auth/change_password.html", form=form)
