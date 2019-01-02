@@ -58,3 +58,15 @@ class UserModelTestCase(unittest.TestCase):
         token = u.generate_confirmation_token(1)
         time.sleep(2)
         self.assertFalse(u.confirm(token))
+
+    def test_change_password(self):
+        u = User(password='cat')
+        db.session.add(u)
+        db.session.commit()
+        u.password = 'dog'
+        db.session.add(u)
+        db.session.commit()
+        self.assertFalse(u.verify_password('cat'))
+        self.assertTrue(u.verify_password('dog'))
+
+
